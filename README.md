@@ -1,4 +1,4 @@
-# strictissimo - Ligtweight json and json-schema library for C
+# Ligtweight json and json-schema library for C
 
 ## Compile and install
 ```

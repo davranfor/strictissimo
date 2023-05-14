@@ -4,10 +4,8 @@
  *  \copyright GNU Public License.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
-#include <json/json.h>
 #include <json/json_schema.h>
 
 static json *parse(const char *path)

@@ -4,12 +4,10 @@
  *  \copyright GNU Public License.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <setjmp.h>
 #include <math.h>
-#include "json.h"
 #include "json_macros.h"
 #include "json_format.h"
 #include "json_schema.h"

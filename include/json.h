@@ -7,6 +7,8 @@
 #ifndef JSON_H
 #define JSON_H
 
+#include <stdio.h>
+
 typedef struct json json;
 typedef struct {int line, column;} json_error;
 typedef int (*json_callback)(const json *, int, void *);

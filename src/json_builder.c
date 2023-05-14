@@ -71,7 +71,7 @@ static char *copy_double(double number, int decimals)
 
 static json *new_type(enum json_type type, const char *key, char *value)
 {
-    if (value == NULL)
+    if ((value == NULL) && (type != JSON_OBJECT) && (type != JSON_ARRAY))
     {
         return NULL;
     }

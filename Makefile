@@ -1,10 +1,10 @@
 CC = gcc
 CFLAGS = -std=c11 -Wpedantic -Wall -Wextra -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wshadow -Wcast-qual -Wnested-externs
 LDLIBS = -lm
-TARGET = libjson.so
 SRCDIR = src
 INCDIR = include
 OBJDIR = obj
+TARGET = libjson.so
 DESTLIB = /usr/local/lib
 DESTINC = /usr/local/include/json
 SOURCES = $(wildcard $(SRCDIR)/*.c)
@@ -22,7 +22,7 @@ debug: $(TARGET)
 
 test: CFLAGS += -DDEBUG -g
 test:
-	$(CC) -I../../$(INCDIR) $(CFLAGS) *.c -o demo -L../.. -ljson
+	$(CC) -I. $(CFLAGS) *.c -o demo -L../.. -ljson
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDLIBS) -shared -o $(TARGET)
@@ -48,4 +48,4 @@ clean:
 	rm -rf $(OBJDIR)
 	rm -f $(TARGET)
 	find test -name demo -exec rm {} +
-	find work -name demo -exec rm {} +
+

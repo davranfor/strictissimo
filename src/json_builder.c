@@ -301,11 +301,7 @@ json *json_push_front(json *parent, json *child)
     {
         return NULL;
     }
-    if (parent->child == NULL)
-    {
-        parent->child = child;
-    }
-    else
+    if (parent->child != NULL)
     {
         child->next = parent->child;
         parent->child->prev = child;
@@ -373,10 +369,11 @@ json *json_push_after(json *where, json *child)
     }
     if (where->next != NULL)
     {
+        child->next = where->next;
         where->next->prev = child;
     }
     child->parent = parent;
-    child->next = where->next;
+    child->prev = where;
     where->next = child;
     return child;
 }
@@ -394,22 +391,23 @@ json *json_push_at(json *parent, json *child, size_t item)
     else
     {
         json *node = parent->child;
-        
+
         while ((item > 0) && (node->next != NULL))
         {
             node = node->next;
             item--;
+        }
+        if (parent->child == node)
+        {
+            parent->child = child;
         }
         if (node->prev != NULL)
         {
             child->prev = node->prev;
             node->prev->next = child;
         }
-        if (node->next != NULL)
-        {
-            child->next = node->next;
-            node->next->prev = child;
-        }
+        child->next = node;
+        node->prev = child;
     }
     child->parent = parent;
     return child;
@@ -421,7 +419,7 @@ json *json_pop(json *child)
 
     if (parent == NULL)
     {
-        return child;
+        return NULL;
     }
     if (parent->child == child)
     {
@@ -430,14 +428,14 @@ json *json_pop(json *child)
     else
     {
         child->prev->next = child->next;
-        child->prev = NULL;
     }
     if (child->next != NULL)
     {
         child->next->prev = child->prev;
-        child->next = NULL;
     }
     child->parent = NULL;
+    child->prev = NULL;
+    child->next = NULL; 
     return child;
 }
 
@@ -449,13 +447,10 @@ json *json_pop_front(json *parent)
     {
         return NULL;
     }
-    if (child->next == NULL)
+    parent->child = child->next;
+    if (child->next != NULL)
     {
-        parent->child = NULL;
-    }
-    else
-    {
-        parent->child = child->next;
+
         child->next->prev = NULL;
         child->next = NULL;
     }
@@ -471,18 +466,18 @@ json *json_pop_back(json *parent)
     {
         return NULL;
     }
-    if (child->next == NULL)
+    while (child->next != NULL)
     {
-        parent->child = NULL;
+        child = child->next;
+    }
+    if (child->prev != NULL)
+    {
+        child->prev->next = NULL;
+        child->prev = NULL;
     }
     else
     {
-        while (child->next != NULL)
-        {
-            child = child->next;
-        }
-        child->prev->next = NULL;
-        child->prev = NULL;
+        parent->child = NULL;
     }
     child->parent = NULL;
     return child;
@@ -496,33 +491,30 @@ json *json_pop_at(json *parent, size_t item)
     {
         return NULL;
     }
-    if ((child->next == NULL) && (item == 0))
+    while ((item > 0) && (child != NULL))
     {
-        parent->child = NULL;
+        child = child->next;
+        item--;
     }
-    else
+    if (child == NULL)
     {
-        while ((item > 0) && (child != NULL))
-        {
-            child = child->next;
-            item--;
-        }
-        if (child == NULL)
-        {
-            return NULL;
-        }
-        if (child->prev != NULL)
-        {
-            child->prev->next = child->next;
-            child->prev = NULL;
-        }
-        if (child->next != NULL)
-        {
-            child->next->prev = child->prev;
-            child->next = NULL;
-        }
+        return NULL;
+    }
+    if (parent->child == child)
+    {
+        parent->child = child->next;
+    }
+    if (child->prev != NULL)
+    {
+        child->prev->next = child->next;
+    }
+    if (child->next != NULL)
+    {
+        child->next->prev = child->prev;
     }
     child->parent = NULL;
+    child->prev = NULL;
+    child->next = NULL;
     return child;
 }
 

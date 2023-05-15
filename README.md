@@ -8,7 +8,7 @@ sudo make install
 
 ## Test examples
 ```
-cd test/simple
+cd test/whatever
 CFLAGS="-std=c11 -Wpedantic -Wall -Wextra -O2" LDLIBS="-ljson" make demo && ./demo
 ```
 

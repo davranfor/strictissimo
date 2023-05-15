@@ -354,6 +354,16 @@ json *json_child(const json *node)
     return node->child;
 }
 
+/* Same as json_child (counterpart of json_tail) */
+json *json_head(const json *node)
+{
+    if (node == NULL)
+    {
+        return NULL;
+    }
+    return node->child;
+}
+
 json *json_prev(const json *node)
 {
     if (node == NULL)
@@ -370,6 +380,20 @@ json *json_next(const json *node)
         return NULL;
     }
     return node->next;
+}
+
+json *json_tail(const json *root)
+{
+    json *node = NULL;
+
+    if ((root != NULL) && (node = root->child))
+    {
+        while (node->next != NULL)
+        {
+            node = node->next;
+        }
+    }
+    return node;
 }
 
 /* Locates a child by index */

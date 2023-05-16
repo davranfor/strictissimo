@@ -10,7 +10,7 @@
 #include "json_struct.h"
 #include "json_macros.h"
 
-static size_t string_size(const char *str)
+static size_t str_size(const char *str)
 {
     const char *ptr = str;
 
@@ -21,7 +21,7 @@ static size_t string_size(const char *str)
     return (size_t)(*str == '\0' ? str - ptr + 1 : 0);
 }
 
-static char *string_format(const char *fmt, va_list args)
+static char *format_string(const char *fmt, va_list args)
 {
     va_list copy;
 
@@ -33,7 +33,7 @@ static char *string_format(const char *fmt, va_list args)
     if (str != NULL)
     {
         vsprintf(str, fmt, copy);
-        if (string_size(str) == 0)
+        if (str_size(str) == 0)
         {
             free(str);
             str = NULL;
@@ -45,7 +45,7 @@ static char *string_format(const char *fmt, va_list args)
 
 static char *copy_string(const char *str)
 {
-    size_t size = string_size(str);
+    size_t size = str_size(str);
     char *ptr = NULL;
 
     if ((size > 0) && (ptr = malloc(size)))
@@ -138,7 +138,7 @@ json *json_new_format(const char *name, const char *fmt, ...)
 
     va_start(args, fmt);
 
-    char *str = string_format(fmt, args);
+    char *str = format_string(fmt, args);
 
     va_end(args);
     if (str == NULL)

@@ -4,19 +4,19 @@
  *  \copyright GNU Public License.
  */
 
-#include <stdlib.h>
-#include <time.h>
-#include <locale.h>
-#include <json/json.h>
-
-enum {N = 50};
-
 /**
  * Testing push and pop family functions
  * -------------------------------------
  * 50 random insertions or deletions
  * Shows the result in a json object
  */
+
+#include <stdlib.h>
+#include <time.h>
+#include <locale.h>
+#include <json/json.h>
+
+enum {N = 50};
 
 int main(void)
 {

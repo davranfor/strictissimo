@@ -27,8 +27,8 @@ static char *format_string(const char *fmt, va_list args)
 
     va_copy(copy, args);
 
-    size_t len = (size_t)vsnprintf(NULL, 0, fmt, args);
-    char *str = malloc(len + 1);
+    size_t length = (size_t)vsnprintf(NULL, 0, fmt, args);
+    char *str = malloc(length + 1);
 
     if (str != NULL)
     {
@@ -57,7 +57,7 @@ static char *copy_string(const char *str)
 
 static char *copy_integer(long long number)
 {
-    size_t size = 1 + (size_t)snprintf(NULL, 0, "%lld", number);
+    size_t size = (size_t)snprintf(NULL, 0, "%lld", number) + 1;
     char *str = malloc(size);
 
     if (str != NULL)
@@ -69,7 +69,7 @@ static char *copy_integer(long long number)
 
 static char *copy_real(unsigned long long number)
 {
-    size_t size = 1 + (size_t)snprintf(NULL, 0, "%llu", number);
+    size_t size = (size_t)snprintf(NULL, 0, "%llu", number) + 1;
     char *str = malloc(size);
 
     if (str != NULL)
@@ -81,7 +81,7 @@ static char *copy_real(unsigned long long number)
 
 static char *copy_double(double number, int decimals)
 {
-    size_t size = 1 + (size_t)snprintf(NULL, 0, "%.*f", decimals, number);
+    size_t size = (size_t)snprintf(NULL, 0, "%.*f", decimals, number) + 1;
     char *str = malloc(size);
 
     if (str != NULL)

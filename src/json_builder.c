@@ -5,6 +5,7 @@
  */
 
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include "json_struct.h"
 #include "json_macros.h"
@@ -18,6 +19,28 @@ static size_t string_size(const char *str)
         str++;
     }
     return (size_t)(*str == '\0' ? str - ptr + 1 : 0);
+}
+
+static char *string_format(const char *fmt, va_list args)
+{
+    va_list copy;
+
+    va_copy(copy, args);
+
+    size_t len = (size_t)vsnprintf(NULL, 0, fmt, args);
+    char *str = malloc(len + 1);
+
+    if (str != NULL)
+    {
+        vsprintf(str, fmt, copy);
+        if (string_size(str) == 0)
+        {
+            free(str);
+            str = NULL;
+        }
+    }
+    va_end(copy);
+    return str;
 }
 
 static char *copy_string(const char *str)
@@ -107,6 +130,22 @@ json *json_new_object(const char *name)
 json *json_new_array(const char *name)
 {
     return new_type(JSON_ARRAY, name, NULL);
+}
+
+json *json_new_format(const char *name, const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+
+    char *str = string_format(fmt, args);
+
+    va_end(args);
+    if (str == NULL)
+    {
+        return NULL;
+    }
+    return new_type(JSON_STRING, name, str);
 }
 
 json *json_new_string(const char *name, const char *value)

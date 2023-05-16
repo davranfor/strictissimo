@@ -112,6 +112,7 @@ enum json_query
 // ============================================================================
 json *json_new_object(const char *);
 json *json_new_array(const char *);
+json *json_new_format(const char *, const char *, ...);
 json *json_new_string(const char *, const char *);
 json *json_new_integer(const char *, long long);
 json *json_new_real(const char *, unsigned long long);

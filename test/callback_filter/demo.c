@@ -7,16 +7,21 @@
 #include <locale.h>
 #include <json/json.h>
 
-/* Callback function - Return 0 to continue or not 0 to stop traversing */
+/**
+ * json_traverse() callback function
+ *
+ * Return:
+ *  0 to stop traversing
+ * !0 to continue
+ */
 static int sum_numbers_until_null(const json *node, int depth, void *data)
 {
     (void)depth;
     if (json_is_number(node)) // Returns true for integer, real and double
     {
         *(double *)data += json_number(node);
-        return 0;
     }
-    return json_is_null(node);
+    return !json_is_null(node);
 }
 
 int main(void)

@@ -42,19 +42,19 @@ static void print_event(const char *title, const json *node)
 }
 
 /**
- * Callback for each event validating the schema
+ * json_validate() callback function
  *
  * Events:
  * 0) Warning: A keyword is irrelevant for validation
  * 1) Invalid: Doesn't validate against a schema rule
- * 2)   Error: Keyword with unexpected value (Malformed schema)
+ * 2)   Error: Keyword with unexpected value (malformed schema)
  *
  * Return:
- * 0 to stop validating
- * 1 to continue validating
+ *  0 to stop validating
+ * !0 to continue
  *
  * Note:
- * Validation stops on event 2 (Error) even if you return 1
+ * Validation stops on event 2 (Error) even returning a non 0 value
  */
 static int on_event(const json *node, const json *rule, int event, void *data)
 {
@@ -78,7 +78,11 @@ static void validate_schema(const json *node, const char *path)
         json_print(node);
         puts("schema.json:");
         json_print(schema);
-        if (!json_validate(node, schema, on_event, NULL))
+        if (json_validate(node, schema, on_event, NULL))
+        {
+            fprintf(stdout, "\n'%s' validated without errors\n", path);
+        }
+        else
         {
             fprintf(stderr, "\n'%s' doesn't validate\n", path);
         }

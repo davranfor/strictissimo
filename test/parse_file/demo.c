@@ -7,7 +7,7 @@
 #include <locale.h>
 #include <json/json.h>
 
-static void parse(const char *path)
+static void parse_file(const char *path)
 {
     json_error error; // Error handle is optional
     json *node = json_parse_file(path, &error);
@@ -26,7 +26,7 @@ static void parse(const char *path)
 int main(void)
 {
     setlocale(LC_CTYPE, "");
-    parse("test.json");
+    parse_file("test.json");
     return 0;
 }
 

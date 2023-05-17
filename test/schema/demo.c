@@ -8,7 +8,7 @@
 #include <locale.h>
 #include <json/json_schema.h>
 
-static json *parse(const char *path)
+static json *parse_file(const char *path)
 {
     json_error error; // Error handle is optional
     json *node = json_parse_file(path, &error);
@@ -20,7 +20,7 @@ static json *parse(const char *path)
     return node;
 }
 
-static void raise(const char *title, const json *node)
+static void print_event(const char *title, const json *node)
 {
     char *path = json_path(node);
 
@@ -41,21 +41,36 @@ static void raise(const char *title, const json *node)
     }
 }
 
-static int callback(const json *node, const json *rule, int event, void *data)
+/**
+ * Callback for each event validating the schema
+ *
+ * Events:
+ * 0) Warning: A keyword is irrelevant for validation
+ * 1) Invalid: Doesn't validate against a schema rule
+ * 2)   Error: Keyword with unexpected value (Malformed schema)
+ *
+ * Return:
+ * 0 to stop validating
+ * 1 to continue validating
+ *
+ * Note:
+ * Validation stops on event 2 (Error) even if you return 1
+ */
+static int on_event(const json *node, const json *rule, int event, void *data)
 {
     (void)data;
 
-    const char *event_title[] = {"Warning", "Invalid", "Malformed schema"};
+    const char *event_title[] = {"Warning", "Invalid", "Error"};
 
     fprintf(stderr, "\n[%s]\n", event_title[event]);
-    raise("Testing:", node);
-    raise("On rule:", rule);
-    return 1;
+    print_event("Testing:", node);
+    print_event("On rule:", rule);
+    return 1; // Continue
 }
 
-static void validate(const json *node, const char *path)
+static void validate_schema(const json *node, const char *path)
 {
-    json *schema = parse(path);
+    json *schema = parse_file(path);
 
     if (schema != NULL)
     {
@@ -63,7 +78,7 @@ static void validate(const json *node, const char *path)
         json_print(node);
         puts("schema.json:");
         json_print(schema);
-        if (!json_validate(node, schema, callback, NULL))
+        if (!json_validate(node, schema, on_event, NULL))
         {
             fprintf(stderr, "\n'%s' doesn't validate\n", path);
         }
@@ -75,11 +90,11 @@ int main(void)
 {
     setlocale(LC_CTYPE, "");
 
-    json *node = parse("test.json");
+    json *node = parse_file("test.json");
 
     if (node != NULL)
     {
-        validate(node, "test.schema.json");
+        validate_schema(node, "test.schema.json");
         json_free(node);
     }
     return 0;

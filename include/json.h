@@ -12,6 +12,7 @@
 typedef struct json json;
 typedef struct {int line, column;} json_error;
 typedef int (*json_callback)(const json *, int, void *);
+typedef int (*json_compare)(const json *, const json *);
 
 enum json_type
 {
@@ -198,6 +199,10 @@ char *json_path(const json *);
 // Pointer
 // ============================================================================
 json *json_pointer(const json *, const char *);
+// ============================================================================
+// Sort
+// ============================================================================
+json *json_sort(json *, json_compare);
 
 #endif /* JSON_H */
 

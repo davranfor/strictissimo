@@ -203,6 +203,7 @@ json *json_pointer(const json *, const char *);
 // Sort
 // ============================================================================
 json *json_sort(json *, json_compare);
+json *json_reverse(json *);
 
 #endif /* JSON_H */
 

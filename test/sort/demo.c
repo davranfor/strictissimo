@@ -9,6 +9,7 @@
 #include <time.h>
 #include <json/json.h>
 
+/* Sort numbers in ascending order */
 static int compare(const json *a, const json *b)
 {
     if (json_is_scalar(a) && json_is_scalar(b))
@@ -34,8 +35,11 @@ int main(void)
     }
     puts("Unsorted:");
     json_print(root);
-    json_sort(root, compare);
+    puts("Reversed:");
+    json_reverse(root);
+    json_print(root);
     puts("Sorted:");
+    json_sort(root, compare);
     json_print(root);
     json_free(root);
     return 0;

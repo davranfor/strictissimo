@@ -93,11 +93,33 @@ json *json_sort(json *root, json_compare compare)
         json *node = sort(root->child, compare);
 
         root->child = node;
-        // Reconect prev nodes
+        // Reconnect prev nodes
+        node->prev = NULL;
         while (node->next != NULL)
         {
             node->next->prev = node;
             node = node->next;
+        }
+    }
+    return root;
+}
+
+json *json_reverse(json *root)
+{
+    if ((root != NULL) && (root->child != NULL))
+    {
+        json *node = root->child, *prev = NULL;
+
+        while (node != NULL)
+        {
+            prev = node->prev;
+            node->prev = node->next;
+            node->next = prev;
+            node = node->prev;
+        }
+        if (prev != NULL)
+        {
+            root->child = prev->prev;
         }
     }
     return root;

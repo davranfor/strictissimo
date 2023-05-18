@@ -557,6 +557,34 @@ json *json_pop_at(json *parent, size_t item)
     return child;
 }
 
+json *json_delete(json *node)
+{
+    json *parent = json_parent(node);
+    json *next = NULL;
+
+    if (parent != NULL)
+    {
+        if (parent->child == node)
+        {
+            parent->child = node->next;
+        }
+        else
+        {
+            node->prev->next = node->next;
+        }
+        if (node->next != NULL)
+        {
+            node->next->prev = node->prev;
+            next = node->next;
+        }
+        node->parent = NULL;
+        node->prev = NULL;
+        node->next = NULL;
+    }
+    json_free(node);
+    return next;
+}
+
 void json_free(json *node)
 {
     json *parent = node ? node->parent : NULL;

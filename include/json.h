@@ -137,6 +137,7 @@ json *json_pop(json *);
 json *json_pop_front(json *);
 json *json_pop_back(json *);
 json *json_pop_at(json *, size_t);
+json *json_delete(json *);
 void json_free(json *);
 // ============================================================================
 // Parser

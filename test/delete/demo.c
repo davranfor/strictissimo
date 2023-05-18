@@ -17,7 +17,16 @@ int main(void)
         tail = json_push_fast(root, tail, json_new_integer(NULL, i));
     }
     json_print(root);
-    json_free(root);
+
+    json *head = json_head(root);
+
+    // Remove first 10 elements
+    for (int i = 0; i < 10; i++)
+    {
+        head = json_delete(head);
+    }
+    json_print(root);
+    json_delete(root);
     return 0;
 }
 

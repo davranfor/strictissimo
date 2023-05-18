@@ -4,7 +4,6 @@
  *  \copyright GNU Public License.
  */
 
-#include <locale.h>
 #include <json/json.h>
 
 /**
@@ -26,8 +25,6 @@ static int sum_numbers_until_null(const json *node, int depth, void *data)
 
 int main(void)
 {
-    setlocale(LC_CTYPE, "");
-
     json *root, *tail;
 
     root = json_new_array(NULL);

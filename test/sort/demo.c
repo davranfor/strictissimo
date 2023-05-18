@@ -5,7 +5,6 @@
  */
 
 #include <stdlib.h>
-#include <locale.h>
 #include <time.h>
 #include <json/json.h>
 
@@ -21,7 +20,6 @@ static int compare(const json *a, const json *b)
 
 int main(void)
 {
-    setlocale(LC_CTYPE, "");
     srand((unsigned)time(NULL));
 
     json *root, *tail = NULL;

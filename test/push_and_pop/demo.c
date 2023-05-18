@@ -13,14 +13,12 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include <locale.h>
 #include <json/json.h>
 
 enum {N = 50};
 
 int main(void)
 {
-    setlocale(LC_CTYPE, "");
     srand((unsigned)time(NULL));
 
     json *root, *node;

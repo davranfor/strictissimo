@@ -6,6 +6,7 @@
 
 /*
 For this example you may need to install the development libraries for curl
+
 On debian:
 sudo apt install libcurl4-gnutls-dev
 
@@ -74,12 +75,7 @@ int main(void)
         json_error error;
         json *node = json_parse(str.data, &error);
 
-        free(str.data);
-        if (node == NULL)
-        {
-            json_print_error(NULL, &error);
-        }
-        else
+        if (node != NULL)
         {
             const char *question = json_string(json_find(node, "setup"));
             const char *answer = json_string(json_find(node, "punchline"));
@@ -90,6 +86,12 @@ int main(void)
             }
             json_free(node);
         }
+        else
+        {
+            json_print_error(NULL, &error);
+            puts(str.data);
+        }
+        free(str.data);
     }
     return 0;
 }

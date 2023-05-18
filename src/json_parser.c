@@ -535,6 +535,10 @@ static void set_error(const char *str, const char *end, json_error *error)
 json *json_parse(const char *str, json_error *error)
 {
     clear_error(error);
+    if (str == NULL)
+    {
+        return NULL;
+    }
 
     json *node = create_node();
 
@@ -598,13 +602,6 @@ static char *read_file_from(const char *path)
 json *json_parse_file(const char *path, json_error *error)
 {
     char *str = read_file_from(path);
-
-    if (str == NULL)
-    {
-        clear_error(error);
-        return NULL;
-    }
-
     json *node = json_parse(str, error);
 
     free(str);

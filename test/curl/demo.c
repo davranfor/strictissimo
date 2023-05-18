@@ -26,19 +26,9 @@ struct string
     size_t len;
 };
 
-static void string_init(struct string *str)
+static size_t string_read(void *ptr, size_t size, size_t nmemb, void *pstr)
 {
-    str->data = malloc(1);
-    if (str->data == NULL)
-    {
-        perror("calloc");
-        exit(EXIT_FAILURE);
-    }
-    str->len = 0;
-}
-
-static size_t string_read(void *ptr, size_t size, size_t nmemb, struct string *str)
-{
+    struct string *str = pstr;
     size_t len = str->len + size * nmemb;
 
     str->data = realloc(str->data, len + 1);
@@ -53,7 +43,7 @@ static size_t string_read(void *ptr, size_t size, size_t nmemb, struct string *s
     return size * nmemb;
 }
 
-int main(void)
+static size_t url_read(struct string *str)
 {
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
@@ -61,38 +51,47 @@ int main(void)
 
     if (curl != NULL)
     {
-        struct string str;
-
-        string_init(&str);
-
-        curl_easy_setopt(curl, CURLOPT_URL, "https://official-joke-api.appspot.com/random_joke");
+        curl_easy_setopt(curl, CURLOPT_URL,
+            "https://official-joke-api.appspot.com/random_joke");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, string_read);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &str);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, str);
         curl_easy_perform(curl);
         curl_easy_cleanup(curl);
         curl_global_cleanup();
-
-        json_error error;
-        json *node = json_parse(str.data, &error);
-
-        if (node != NULL)
-        {
-            const char *question = json_string(json_find(node, "setup"));
-            const char *answer = json_string(json_find(node, "punchline"));
-
-            if (question && answer)
-            {
-                printf("\nQ: %s\nA: %s\n", question, answer);
-            }
-            json_free(node);
-        }
-        else
-        {
-            json_print_error(NULL, &error);
-            puts(str.data);
-        }
-        free(str.data);
     }
+    return str->len;
+}
+
+int main(void)
+{
+    struct string str = {0};
+
+    if (url_read(&str) == 0)
+    {
+        perror("url_read");
+        exit(EXIT_FAILURE);
+    }
+
+    json_error error;
+    json *node = json_parse(str.data, &error);
+
+    if (node != NULL)
+    {
+        const char *question = json_string(json_find(node, "setup"));
+        const char *answer = json_string(json_find(node, "punchline"));
+
+        if (question && answer)
+        {
+            printf("\nQ: %s\nA: %s\n", question, answer);
+        }
+        json_free(node);
+    }
+    else
+    {
+        json_print_error(NULL, &error);
+        puts(str.data);
+    }
+    free(str.data);
     return 0;
 }
 

@@ -55,18 +55,13 @@ static json *merge(json *a, json *b, json_compare compare)
                 pa = pb;
                 break;
             }
-            else if (compare(pa->next, pb) > 0)
+            if (compare(pa->next, pb) > 0)
             {
-                json *pc = pa->next;
-
+                pb->next = pa->next;
                 pa->next = pb;
-                pb->next = pc;
                 break;
             }
-            else
-            {
-                pa = pa->next;
-            }
+            pa = pa->next;
         }
     }
     return a;

@@ -150,7 +150,9 @@ void json_print_error(const char *, const json_error *);
 // ============================================================================
 enum json_type json_type(const json *);
 const char *json_type_name(const json *);
+const char *json_key(const json *);
 const char *json_name(const json *);
+const char *json_value(const json *);
 const char *json_string(const json *);
 long long json_integer(const json *);
 unsigned long long json_real(const json *);

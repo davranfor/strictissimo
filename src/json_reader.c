@@ -139,12 +139,18 @@ const char *json_type_name(const json *node)
 {
     if (node == NULL)
     {
-        return NULL;
+        return "";
     }
     return type_name[node->type];
 }
 
-const char *json_name(const json *node)
+/**
+ * The difference between json_key() and json_name() is:
+ * json_key():  returns NULL if the node doesn't have a key
+ * json_name(): returns  ""  if the node doesn't have a key
+ */
+
+const char *json_key(const json *node)
 {
     if (node == NULL)
     {
@@ -153,11 +159,35 @@ const char *json_name(const json *node)
     return node->name;
 }
 
-const char *json_string(const json *node)
+const char *json_name(const json *node)
+{
+    if ((node == NULL) || (node->name == NULL))
+    {
+        return "";
+    }
+    return node->name;
+}
+
+/**
+ * The difference between json_value() and json_string() is:
+ * json_value():  returns NULL if the node doesn't have a value
+ * json_string(): returns  ""  if the node doesn't have a value
+ */
+
+const char *json_value(const json *node)
 {
     if (node == NULL)
     {
         return NULL;
+    }
+    return node->value;
+}
+
+const char *json_string(const json *node)
+{
+    if ((node == NULL) || (node->value == NULL))
+    {
+        return "";
     }
     return node->value;
 }

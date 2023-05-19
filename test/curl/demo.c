@@ -26,9 +26,9 @@ struct string
     size_t len;
 };
 
-static size_t string_read(void *ptr, size_t size, size_t nmemb, void *pstr)
+static size_t string_read(void *ptr, size_t size, size_t nmemb, void *stream)
 {
-    struct string *str = pstr;
+    struct string *str = stream;
     size_t len = str->len + size * nmemb;
 
     str->data = realloc(str->data, len + 1);
@@ -77,13 +77,10 @@ int main(void)
 
     if (node != NULL)
     {
-        const char *question = json_string(json_find(node, "setup"));
-        const char *answer = json_string(json_find(node, "punchline"));
-
-        if (question && answer)
-        {
-            printf("\nQ: %s\nA: %s\n", question, answer);
-        }
+        printf("\nQ: %s\nA: %s\n",
+            json_string(json_find(node, "setup")),
+            json_string(json_find(node, "punchline"))
+        );
         json_free(node);
     }
     else

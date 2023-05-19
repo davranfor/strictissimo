@@ -11,7 +11,7 @@
 /* Sort numbers in ascending order */
 static int compare(const json *a, const json *b)
 {
-    if (json_is_scalar(a) && json_is_scalar(b))
+    if (json_is_number(a) && json_is_number(b))
     {
         return json_number(a) > json_number(b);
     }

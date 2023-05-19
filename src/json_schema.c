@@ -253,7 +253,7 @@ static int find_required(const json *node, const json *rule)
 {
     for (rule = json_child(rule); rule != NULL; rule = json_next(rule))
     {
-        if (!json_find(node, json_string(rule)))
+        if (!json_find(node, json_value(rule)))
         {
             return 0;
         }
@@ -291,7 +291,7 @@ static int test_dependent_required(const json *node, const json *rule)
         }
         if (valid && json_is_object(node))
         {
-            if (json_find(node, json_name(rule)) && !find_required(node, rule))
+            if (json_find(node, json_key(rule)) && !find_required(node, rule))
             {
                 valid = 0;
             }
@@ -342,7 +342,7 @@ static int test_additional_properties(const json *node, const json *rule)
         {
             for (node = json_child(node); node != NULL; node = json_next(node))
             {
-                if (!json_find(properties, json_name(node)))
+                if (!json_find(properties, json_key(node)))
                 {
                     return 0;
                 }
@@ -636,16 +636,15 @@ static const json *handle_ref(json_schema *schema,
 static int handle_cond(const json **rule, int cond)
 {
     const json *next = json_next(*rule);
-    const char *name;
 
-    if (json_is_object(next) && (name = json_name(next)))
+    if (json_is_object(next))
     {
-        if (equal(name, "then"))
+        if (equal(json_name(next), "then"))
         {
             *rule = next;
             return cond;
         }
-        if (equal(name, "else"))
+        if (equal(json_name(next), "else"))
         {
             *rule = next;
             return !cond;
@@ -708,7 +707,7 @@ static tester get_test(const json *rule)
 {
     const char *name = json_name(rule);
 
-    if (name == NULL)
+    if (name[0] == '\0')
     {
         return test_error;
     }
@@ -741,7 +740,7 @@ static int validate(json_schema *schema,
 
                 while (next != NULL)
                 {
-                    if (json_find(node, json_name(next)))
+                    if (json_find(node, json_key(next)))
                     {
                         valid &= validate(schema, node, json_child(next), flag);
                     }
@@ -768,9 +767,9 @@ static int validate(json_schema *schema,
                 }
                 else while (next != NULL)
                 {
-                    item = json_find(node, json_name(next));
+                    item = json_find(node, json_key(next));
                     do valid &= validate(schema, item, json_child(next), flag);
-                    while ((item = json_find_next(item, json_name(next))));
+                    while ((item = json_find_next(item, json_key(next))));
                     next = json_next(next);
                 }
             }
@@ -814,7 +813,7 @@ static int validate(json_schema *schema,
                 {
                     while (item != NULL)
                     {
-                        if (!json_find(properties, json_name(item)))
+                        if (!json_find(properties, json_key(item)))
                         {
                             valid &= validate(schema, item, next, flag);
                             count++;

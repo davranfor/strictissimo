@@ -5,6 +5,8 @@
  */
 
 /*
+Download, parse and display a json containing a joke from official-joke-api.appspot.com
+
 For this example you may need to install the development libraries for curl
 
 On debian:
@@ -47,19 +49,29 @@ static size_t url_read(struct string *str)
 {
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
+    struct curl_slist *headers = NULL;
+
+    headers = curl_slist_append(headers, "Accept: application/json");
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+    headers = curl_slist_append(headers, "charset: utf-8");
+
     CURL *curl = curl_easy_init();
+    CURLcode res = CURLE_OK;
 
     if (curl != NULL)
     {
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
         curl_easy_setopt(curl, CURLOPT_URL,
             "https://official-joke-api.appspot.com/random_joke");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, string_read);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, str);
-        curl_easy_perform(curl);
+        res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
-        curl_global_cleanup();
     }
-    return str->len;
+    curl_slist_free_all(headers);
+    curl_global_cleanup();
+    return (res == CURLE_OK) ? str->len : 0;
 }
 
 int main(void)

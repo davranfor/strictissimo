@@ -462,7 +462,7 @@ static size_t get_length(const char *str)
 {
     size_t length = 0;
 
-    while (*str != 0)
+    while (*str != '\0')
     {
         if (is_utf8(*str))
         {

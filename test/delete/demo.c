@@ -20,7 +20,7 @@ int main(void)
 
     json *head = json_head(root);
 
-    // Remove first 10 elements
+    // Delete first 10 elements
     for (int i = 0; i < 10; i++)
     {
         head = json_delete(head);

@@ -61,7 +61,7 @@ static size_t url_read(struct string *str)
     if (curl != NULL)
     {
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
         curl_easy_setopt(curl, CURLOPT_URL,
             "https://official-joke-api.appspot.com/random_joke");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, string_read);

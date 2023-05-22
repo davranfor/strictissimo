@@ -10,8 +10,8 @@
  * json_traverse() callback function
  *
  * Return:
- *  0 to stop traversing
- * !0 to continue
+ * <= 0 to stop traversing
+ *  > 0 to continue
  */
 static int sum_numbers_until_null(const json *node, int depth, void *data)
 {

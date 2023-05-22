@@ -44,10 +44,9 @@ int main(void)
     {
         unsigned number = (unsigned)rand() % 90 + 10;
         unsigned offset = (unsigned)rand() % 5;
-        unsigned random = (unsigned)rand() % 9;
         json *node;
 
-        switch (random)
+        switch (rand() % 9)
         {
             case 0:
                 node = json_push_front(root, json_new_real(NULL, number));

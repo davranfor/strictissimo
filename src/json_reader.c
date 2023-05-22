@@ -621,7 +621,7 @@ int json_equal(const json *a, const json *b)
 
 /*
  * Sends all nodes to a callback func providing depth and user-data
- * Exit when all nodes are read or func returns 0
+ * Exit when all nodes are read or func returns a values <= 0
  */
 int json_traverse(const json *node, json_callback func, void *data)
 {
@@ -629,9 +629,11 @@ int json_traverse(const json *node, json_callback func, void *data)
 
     while (node != NULL)
     {
-        if (func(node, depth, data) == 0)
+        int result = func(node, depth, data);
+
+        if (result <= 0)
         {
-            return 0;
+            return result;
         }
         if (node->child != NULL)
         {

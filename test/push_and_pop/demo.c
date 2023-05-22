@@ -104,8 +104,8 @@ int main(void)
     {
         json_push_after(root, json_new_real("size", json_size(root)));
         root = json_parent(root);
+        json_print(root);
     }
-    json_print(root);
     json_free(root);
     return 0;
 }

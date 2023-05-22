@@ -50,8 +50,8 @@ static void print_event(const char *title, const json *node)
  * 2)   Error: Keyword with unexpected value (malformed schema)
  *
  * Return:
- * <= 0 to stop validating
- *  > 0 to continue
+ *  0 to stop validating
+ * !0 to continue
  *
  * Note:
  * Validation stops on event 2 (Error) even returning a non 0 value

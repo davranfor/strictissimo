@@ -8,6 +8,8 @@
 #include <string.h>
 #include "json_map.h"
 
+#define hash_name(name) hash_str((const unsigned char *)name)
+
 struct node
 {
     char *name;
@@ -82,9 +84,8 @@ static struct node *create_node(const char *name, json *data)
     return node;
 }
 
-static unsigned long hash_str(const char *str)
+static unsigned long hash_str(const unsigned char * key)
 {
-    const unsigned char *key = (const unsigned char *)str;
     unsigned long hash = 5381;
     unsigned char chr;
 
@@ -107,8 +108,9 @@ static void reset(json_map *map)
     free(next);
 }
 
-static void move(json_map *map, struct node *node, unsigned long hash)
+static void move(json_map *map, struct node *node)
 {
+    unsigned long hash = hash_name(node->name);
     struct node **list = map->list + hash % map->room;
 
     node->next = *list;
@@ -128,7 +130,7 @@ static json_map *rehash(json_map *map, unsigned long hash)
         {
             struct node *next = node->next;
 
-            move(map->next, node, hash);
+            move(map->next, node);
             map->size--;
             node = next;
         }
@@ -146,14 +148,11 @@ static json_map *rehash(json_map *map, unsigned long hash)
 
 json *json_map_insert(json_map *map, const char *name, json *data)
 {
-    unsigned long hash = hash_str(name);
-
     if (map != NULL)
     {
-        if (!(map = rehash(map, hash)))
-        {
-            return NULL;
-        }
+        unsigned long hash = hash_name(name);
+
+        map = rehash(map, hash);
 
         struct node **list = map->list + hash % map->room;
         struct node *node = *list;
@@ -200,7 +199,7 @@ json *json_map_insert(json_map *map, const char *name, json *data)
 
 json *json_map_delete(json_map *map, const char *name)
 {
-    unsigned long hash = hash_str(name);
+    unsigned long hash = hash_name(name);
 
     while (map != NULL)
     {
@@ -244,7 +243,7 @@ json *json_map_delete(json_map *map, const char *name)
 
 json *json_map_search(const json_map *map, const char *name)
 {
-    unsigned long hash = hash_str(name);
+    unsigned long hash = hash_name(name);
 
     while (map != NULL)
     {

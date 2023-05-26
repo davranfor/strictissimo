@@ -52,7 +52,7 @@ int main(void)
             }
             else
             {
-                //printf("%s inserted\n", json_string(node));
+                printf("%s inserted\n", json_string(node));
             }
         }
         else

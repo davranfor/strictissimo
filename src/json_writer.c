@@ -59,22 +59,43 @@ static json_buffer *buffer_write(json_buffer *buffer, const char *text)
     return buffer_write_sized(buffer, text, strlen(text));
 }
 
-static int buffer_write_number(json_buffer *buffer, const char *fmt,
-    double value)
+static json_buffer *buffer_write_integer(json_buffer *buffer, double value)
 {
-    size_t length = (size_t)snprintf(NULL, 0, fmt, value);
+    size_t length = (size_t)snprintf(NULL, 0, "%.0f", value);
     size_t size = buffer->length + length + 1;
 
     if (size > buffer->size)
     {
         if (!buffer_resize(buffer, buffer_next_size(size)))
         {
-            return 0;
+            return NULL;
         }
     }
-    snprintf(buffer->text + buffer->length, length + 1, fmt, value);
+    snprintf(buffer->text + buffer->length, length + 1, "%.0f", value);
     buffer->length += length;
-    return 1;
+    return buffer;
+}
+
+static json_buffer *buffer_write_double(json_buffer *buffer, double value)
+{
+    size_t length = (size_t)snprintf(NULL, 0, "%.17g", value);
+    size_t size = buffer->length + length + 1;
+
+    if (size > buffer->size)
+    {
+        if (!buffer_resize(buffer, buffer_next_size(size)))
+        {
+            return NULL;
+        }
+    }
+    snprintf(buffer->text + buffer->length, length + 1, "%.17g", value);
+    buffer->length += length;
+    /* Trailing zeros are removed when %g is used */
+    if ((long long)value == value)
+    {
+        return buffer_write_sized(buffer, ".0", 2);
+    }
+    return buffer;
 }
 
 static int buffer_parse(json_buffer *buffer, const char *str)
@@ -125,19 +146,17 @@ static int buffer_print(json_buffer *buffer, const json *node)
 {
     switch (node->type)
     {
+        case JSON_STRING:
+            CHECK(buffer_quote(buffer, node->value.as_string));
+            return 1;
         case JSON_INTEGER:
-            return buffer_write_number(buffer, "%.0f", node->value.as_number);
+            CHECK(buffer_write_integer(buffer, node->value.as_number));
+            return 1;
         case JSON_DOUBLE:
-            return buffer_write_number(buffer, "%.17g", node->value.as_number);
+            CHECK(buffer_write_double(buffer, node->value.as_number));
+            return 1;
         case JSON_BOOLEAN:
-            if (node->value.as_number != 0)
-            {
-                CHECK(buffer_write(buffer, "true"));
-            }
-            else
-            {
-                CHECK(buffer_write(buffer, "false"));
-            }
+            CHECK(buffer_write(buffer, node->value.as_number ? "true" : "false"));
             return 1;
         case JSON_NULL:
             CHECK(buffer_write(buffer, "null"));
@@ -165,9 +184,6 @@ static int buffer_write_node(json_buffer *buffer, const json *node, int depth)
             break;
         case JSON_ARRAY:
             CHECK(buffer_write(buffer, "["));
-            break;
-        case JSON_STRING:
-            CHECK(buffer_quote(buffer, node->value.as_string));
             break;
         default:
             CHECK(buffer_print(buffer, node));
@@ -284,19 +300,6 @@ char *json_encode(const json *node)
     return text;
 }
 
-static int buffer_encode_value(json_buffer *buffer, const json *node)
-{
-    if (node->type == JSON_STRING)
-    {
-        CHECK(buffer_quote(buffer, node->value.as_string));
-    }
-    else
-    {
-        CHECK(buffer_print(buffer, node));
-    }
-    return 1;
-}
-
 char *json_encode_value(const json *node)
 {
     if (!json_is_scalar(node))
@@ -307,7 +310,7 @@ char *json_encode_value(const json *node)
     json_buffer buffer = {NULL, 0, 0};
     char *text = NULL;
 
-    if (buffer_encode_value(&buffer, node))
+    if (buffer_print(&buffer, node))
     {
         text = buffer.text;
     }

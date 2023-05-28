@@ -253,7 +253,7 @@ static int find_required(const json *node, const json *rule)
 {
     for (rule = json_child(rule); rule != NULL; rule = json_next(rule))
     {
-        if (!json_find(node, json_value(rule)))
+        if (!json_find(node, json_string(rule)))
         {
             return 0;
         }

@@ -168,81 +168,58 @@ const char *json_name(const json *node)
     return node->name;
 }
 
-/**
- * The difference between json_value() and json_string() is:
- * json_value():  returns NULL if the node doesn't have a value
- * json_string(): returns  ""  if the node doesn't have a value
- */
-
-const char *json_value(const json *node)
-{
-    if (node == NULL)
-    {
-        return NULL;
-    }
-    return node->value;
-}
-
 const char *json_string(const json *node)
 {
-    if ((node == NULL) || (node->value == NULL))
+    if ((node == NULL) || (node->type != JSON_STRING))
     {
         return "";
     }
-    return node->value;
+    return node->value.as_string;
 }
 
 long long json_integer(const json *node)
 {
-    if ((node == NULL) || (node->value == NULL))
+    if ((node == NULL) || (node->type == JSON_STRING))
     {
         return 0;
     }
-    return strtoll(node->value, NULL, 10);
+    return (long long)node->value.as_number;
 }
 
 unsigned long long json_real(const json *node)
 {
-    if ((node == NULL) || (node->value == NULL))
+    if ((node == NULL) || (node->type == JSON_STRING))
     {
         return 0;
     }
-    return strtoull(node->value, NULL, 10);
+    return (unsigned long long)node->value.as_number;
 }
 
 double json_double(const json *node)
 {
-    if ((node == NULL) || (node->value == NULL))
+    if ((node == NULL) || (node->type == JSON_STRING))
     {
         return 0.0;
     }
-    return strtod(node->value, NULL);
+    return node->value.as_number;
 }
 
 double json_number(const json *node)
 {
-    if ((node == NULL) || (node->value == NULL))
+    if ((node == NULL) || (node->type == JSON_STRING))
     {
         return 0.0;
     }
-    return strtod(node->value, NULL);
+    return node->value.as_number;
 }
 
 int json_boolean(const json *node)
 {
-    if (node == NULL)
+    if ((node == NULL) || (node->type == JSON_STRING))
     {
         return 0;
     }
-    if (node->type == JSON_BOOLEAN)
-    {
-        return node->value[0] == 't';
-    }
-    if (node->value != NULL)
-    {
-        return strtod(node->value, NULL) != 0.0;
-    }
-    return 0;
+    return node->value.as_number != 0;
 }
 
 int json_is_any(const json *node)
@@ -253,13 +230,13 @@ int json_is_any(const json *node)
 int json_is_iterable(const json *node)
 {
     return (node != NULL)
-        && (node->value == NULL);
+        && ((node->type == JSON_OBJECT) || (node->type == JSON_ARRAY));
 }
 
 int json_is_scalar(const json *node)
 {
     return (node != NULL)
-        && (node->value != NULL);
+        && ((node->type != JSON_OBJECT) && (node->type != JSON_ARRAY));
 }
 
 int json_is_object(const json *node)
@@ -290,7 +267,7 @@ int json_is_real(const json *node)
 {
     return (node != NULL)
         && (node->type == JSON_INTEGER)
-        && (strtod(node->value, NULL) >= 0);
+        && (node->value.as_number >= 0);
 }
 
 int json_is_double(const json *node)
@@ -316,14 +293,14 @@ int json_is_true(const json *node)
 {
     return (node != NULL)
         && (node->type == JSON_BOOLEAN)
-        && (node->value[0] == 't');
+        && (node->value.as_number != 0);
 }
 
 int json_is_false(const json *node)
 {
     return (node != NULL)
         && (node->type == JSON_BOOLEAN)
-        && (node->value[0] == 'f');
+        && (node->value.as_number == 0);
 }
 
 int json_is_null(const json *node)
@@ -549,20 +526,13 @@ static int equal(const json *a, const json *b, int depth)
             return 0;
         }
     }
-    if ((a->value == NULL) ^ (b->value == NULL))
+    if (a->type == JSON_STRING)
     {
-        return 0;
+        return strcmp(a->value.as_string, b->value.as_string) == 0;
     }
-    if (a->value != NULL)
+    else
     {
-        if (json_is_number(a))
-        {
-            return strtod(a->value, NULL) == strtod(b->value, NULL);
-        }
-        else
-        {
-            return strcmp(a->value, b->value) == 0;
-        }
+        return a->value.as_number == b->value.as_number;
     }
     return 1;
 }

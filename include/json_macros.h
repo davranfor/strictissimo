@@ -15,11 +15,10 @@
 #define is_alpha(c) isalpha((unsigned char)(c))
 #define is_alnum(c) isalnum((unsigned char)(c))
 #define is_xdigit(c) isxdigit((unsigned char)(c))
+#define is_char(c) lookup_char((unsigned char)(c))
 #define is_utf8(c) (((c) & 0xc0) != 0x80)
 
-int json_lookup_valid_char(unsigned char);
-
-#define json_valid_char(c) json_lookup_valid_char((unsigned char)(c))
+int lookup_char(unsigned char);
 
 #endif /* JSON_MACROS_H */
 

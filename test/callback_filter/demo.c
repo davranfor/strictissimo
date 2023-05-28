@@ -35,7 +35,7 @@ int main(void)
     tail = json_push_after(tail, json_new_object(NULL));
     tail = json_push_after(tail, json_new_string(NULL, "10000")); // Not computed
     tail = json_push_after(tail, json_new_format(NULL, "%d", 1)); // Not computed
-    tail = json_push_after(tail, json_new_double(NULL, 0.14, 2)); // 2 decimals
+    tail = json_push_after(tail, json_new_double(NULL, 0.14));
     tail = json_push_after(tail, json_new_boolean(NULL, 1)); // Not computed
     tail = json_push_after(tail, json_new_null(NULL)); // Stop here
     tail = json_push_after(tail, json_new_integer(NULL, 100));

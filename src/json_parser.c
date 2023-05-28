@@ -32,34 +32,6 @@ static int is_token(int c)
         || (c == '\0');
 }
 
-/* Check whether a string is a valid number */
-static int is_number(const char *left, const char *right)
-{
-    char *end;
-
-    strtod(left, &end);
-    if (end <= right)
-    {
-        return 0;
-    }
-    /* Skip sign */
-    if (left[0] == '-')
-    {
-        left++;
-    }
-    /* Do not allow padding 0s */
-    if ((left[0] == '0') && is_digit(left[1]))
-    {
-        return 0;
-    }
-    /* Must start and end with a digit */ 
-    if (!is_digit(*left) || !is_digit(*right))
-    {
-        return 0;
-    }
-    return 1;
-}
-
 /* Check whether a string already tested as a valid number is a double */
 static int is_double(const char *left, const char *right)
 {
@@ -105,7 +77,7 @@ static int unicode_to_mb(const char *str, char *buf)
     unsigned codepoint = (unsigned)strtoul(hex, NULL, 16);
 
     /* Copy "as is" if is not a valid json character */
-    if (!json_valid_char(codepoint))
+    if (!is_char(codepoint))
     {
         memcpy(buf, str - 1, 6);
         return 6;
@@ -258,8 +230,7 @@ static char *copy(const char *str, size_t length)
                     break;
             }
         }
-        /* Skip quotes */
-        else if (*str != '"')
+        else
         {
             *ptr++ = *str;
         }
@@ -267,6 +238,38 @@ static char *copy(const char *str, size_t length)
     }
     *ptr = '\0';
     return buf;
+}
+
+/* Convert and check whether a string is a valid number */
+static double to_number(const char *left, const char *right, int *error)
+{
+    char *end;
+    double result = strtod(left, &end);
+
+    if (end <= right)
+    {
+        *error = 1;
+        return 0;
+    }
+    /* Skip sign */
+    if (left[0] == '-')
+    {
+        left++;
+    }
+    /* Do not allow padding 0s */
+    if ((left[0] == '0') && is_digit(left[1]))
+    {
+        *error = 1;
+        return 0;
+    }
+    /* Must start and end with a digit */ 
+    if (!is_digit(*left) || !is_digit(*right))
+    {
+        *error = 1;
+        return 0;
+    }
+    *error = 0;
+    return result;
 }
 
 static char *set_name(json *node, const char *left, const char *right)
@@ -278,40 +281,50 @@ static char *set_name(json *node, const char *left, const char *right)
     {
         return NULL;
     }
-    node->name = copy(left, length);
+    /* Allocate memory skipping quotes */
+    node->name = copy(left + 1, length - 2);
     return node->name;
 }
 
-static char *set_value(json *node, const char *left, const char *right)
+static int set_value(json *node, const char *left, const char *right)
 {
     size_t length = (size_t)(right - left + 1);
+    int error = 0;
 
     if ((*left == '"') && (*right == '"'))
     {
         node->type = JSON_STRING;
+        if (!(node->value.as_string = copy(left + 1, length - 2)))
+        {
+            error = 1;
+        }
     }
     else if ((length == 4) && (strncmp(left, "null", length) == 0))
     {
         node->type = JSON_NULL;
+        node->value.as_number = 0;
     }
     else if ((length == 4) && (strncmp(left, "true", length) == 0))
     {
         node->type = JSON_BOOLEAN;
+        node->value.as_number = 1;
     }
     else if ((length == 5) && (strncmp(left, "false", length) == 0))
     {
         node->type = JSON_BOOLEAN;
-    }
-    else if (is_number(left, right))
-    {
-        node->type = is_double(left, right) ? JSON_DOUBLE : JSON_INTEGER;
+        node->value.as_number = 0;
     }
     else
     {
-        return NULL;
+        double value = to_number(left, right, &error);
+
+        if (!error)
+        {
+            node->type = is_double(left, right) ? JSON_DOUBLE : JSON_INTEGER;
+            node->value.as_number = value;
+        }
     }
-    node->value = copy(left, length);
-    return node->value;
+    return !error;
 }
 
 static json *create_node(void)
@@ -361,7 +374,7 @@ static const char *parse(json *node, const char *left)
 
     while (node != NULL)
     {
-        if ((token = scan(&left, &right)) == NULL)
+        if (!(token = scan(&left, &right)))
         {
             return left;
         }
@@ -397,7 +410,7 @@ static const char *parse(json *node, const char *left)
                 {
                     return token;
                 }
-                if (set_name(node, left, right) == NULL)
+                if (!set_name(node, left, right))
                 {
                     return left;
                 }
@@ -417,7 +430,7 @@ static const char *parse(json *node, const char *left)
                     {
                         return left;
                     }
-                    if (set_value(node, left, right) == NULL)
+                    if (!set_value(node, left, right))
                     {
                         return left;
                     }
@@ -453,7 +466,7 @@ static const char *parse(json *node, const char *left)
                     {
                         return left;
                     }
-                    if (set_value(node, left, right) == NULL)
+                    if (!set_value(node, left, right))
                     {
                         return left;
                     }
@@ -479,7 +492,7 @@ static const char *parse(json *node, const char *left)
                     {
                         return left;
                     }
-                    if (set_value(node, left, right) == NULL)
+                    if (!set_value(node, left, right))
                     {
                         return left;
                     }
@@ -525,9 +538,9 @@ static void set_error(const char *str, const char *end, json_error *error)
             error->line++;
             error->column = 1;
         }
-        else
+        else if (is_utf8(*str))
         {
-            error->column += is_utf8(*str);
+            error->column++;
         }
     }
 }

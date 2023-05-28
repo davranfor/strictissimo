@@ -9,10 +9,17 @@
 
 #include "json.h"
 
+union json_value
+{
+    char *as_string;
+    double as_number;
+};
+
 struct json
 {
     json *parent, *child, *prev, *next;
-    char *name, *value;
+    char *name;
+    union json_value value;
     enum json_type type;
 };
 

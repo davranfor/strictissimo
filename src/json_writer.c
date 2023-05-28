@@ -59,6 +59,24 @@ static json_buffer *buffer_write(json_buffer *buffer, const char *text)
     return buffer_write_sized(buffer, text, strlen(text));
 }
 
+static int buffer_write_number(json_buffer *buffer, const char *fmt,
+    double value)
+{
+    size_t length = (size_t)snprintf(NULL, 0, fmt, value);
+    size_t size = buffer->length + length + 1;
+
+    if (size > buffer->size)
+    {
+        if (!buffer_resize(buffer, buffer_next_size(size)))
+        {
+            return 0;
+        }
+    }
+    snprintf(buffer->text + buffer->length, length + 1, fmt, value);
+    buffer->length += length;
+    return 1;
+}
+
 static int buffer_parse(json_buffer *buffer, const char *str)
 {
     const char *ptr = str;
@@ -103,6 +121,32 @@ static int buffer_quote(json_buffer *buffer, const char *text)
     return 1;
 }
 
+static int buffer_print(json_buffer *buffer, const json *node)
+{
+    switch (node->type)
+    {
+        case JSON_INTEGER:
+            return buffer_write_number(buffer, "%.0f", node->value.as_number);
+        case JSON_DOUBLE:
+            return buffer_write_number(buffer, "%.17g", node->value.as_number);
+        case JSON_BOOLEAN:
+            if (node->value.as_number != 0)
+            {
+                CHECK(buffer_write(buffer, "true"));
+            }
+            else
+            {
+                CHECK(buffer_write(buffer, "false"));
+            }
+            return 1;
+        case JSON_NULL:
+            CHECK(buffer_write(buffer, "null"));
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 static int buffer_write_node(json_buffer *buffer, const json *node, int depth)
 {
     for (int i = 0; i < depth; i++)
@@ -123,10 +167,10 @@ static int buffer_write_node(json_buffer *buffer, const json *node, int depth)
             CHECK(buffer_write(buffer, "["));
             break;
         case JSON_STRING:
-            CHECK(buffer_quote(buffer, node->value));
+            CHECK(buffer_quote(buffer, node->value.as_string));
             break;
         default:
-            CHECK(buffer_write(buffer, node->value));
+            CHECK(buffer_print(buffer, node));
             break;
     }
     if (node->child == NULL)
@@ -244,18 +288,18 @@ static int buffer_encode_value(json_buffer *buffer, const json *node)
 {
     if (node->type == JSON_STRING)
     {
-        CHECK(buffer_quote(buffer, node->value));
+        CHECK(buffer_quote(buffer, node->value.as_string));
     }
     else
     {
-        CHECK(buffer_write(buffer, node->value));
+        CHECK(buffer_print(buffer, node));
     }
     return 1;
 }
 
 char *json_encode_value(const json *node)
 {
-    if ((node == NULL) || (node->value == NULL))
+    if (!json_is_scalar(node))
     {
         return NULL;
     }

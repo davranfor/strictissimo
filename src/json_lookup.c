@@ -4,6 +4,7 @@
  *  \copyright GNU Public License.
  */
 
+#include <stdint.h>
 #include "json_macros.h"
 
 /** 
@@ -30,7 +31,7 @@ static const unsigned char valid_chars[] =
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 };
 
-int json_lookup_valid_char(unsigned char c)
+int lookup_char(unsigned char c)
 {
     return valid_chars[c];
 }

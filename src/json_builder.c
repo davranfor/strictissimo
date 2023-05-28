@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <math.h>
 #include "json_struct.h"
 #include "json_macros.h"
 
@@ -149,12 +148,12 @@ json *json_new_string(const char *name, const char *value)
 
 json *json_new_integer(const char *name, long long value)
 {
-    return new_type(JSON_INTEGER, name, round((double)value));
+    return new_type(JSON_INTEGER, name, (double)value);
 }
 
 json *json_new_real(const char *name, unsigned long long value)
 {
-    return new_type(JSON_INTEGER, name, round((double)value));
+    return new_type(JSON_INTEGER, name, (double)value);
 }
 
 json *json_new_double(const char *name, double value)
@@ -237,7 +236,7 @@ json *json_set_integer(json *node, long long value)
     {
         return NULL;
     }
-    return set_type(node, JSON_INTEGER, round((double)value));
+    return set_type(node, JSON_INTEGER, (double)value);
 }
 
 json *json_set_real(json *node, unsigned long long value)
@@ -246,7 +245,7 @@ json *json_set_real(json *node, unsigned long long value)
     {
         return NULL;
     }
-    return set_type(node, JSON_INTEGER, round((double)value));
+    return set_type(node, JSON_INTEGER, (double)value);
 }
 
 json *json_set_double(json *node, double value)

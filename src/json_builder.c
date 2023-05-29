@@ -55,30 +55,6 @@ static char *copy_string(const char *str)
     return ptr;
 }
 
-static json *new_type(enum json_type type, const char *key, double value)
-{
-    char *name = NULL;
-
-    if ((key != NULL) && !(name = copy_string(key)))
-    {
-        return NULL;
-    }
-
-    json *node = calloc(1, sizeof *node);
-
-    if (node != NULL)
-    {
-        node->type = type;
-        node->name = name;
-        node->value.as_number = value;
-    }
-    else
-    {
-        free(name);
-    }
-    return node;
-}
-
 static json *new_string(const char *key, char *value)
 {
     if (value == NULL)
@@ -110,14 +86,38 @@ static json *new_string(const char *key, char *value)
     return node;
 }
 
+static json *new_number(enum json_type type, const char *key, double value)
+{
+    char *name = NULL;
+
+    if ((key != NULL) && !(name = copy_string(key)))
+    {
+        return NULL;
+    }
+
+    json *node = calloc(1, sizeof *node);
+
+    if (node != NULL)
+    {
+        node->type = type;
+        node->name = name;
+        node->value.as_number = value;
+    }
+    else
+    {
+        free(name);
+    }
+    return node;
+}
+
 json *json_new_object(const char *name)
 {
-    return new_type(JSON_OBJECT, name, 0);
+    return new_number(JSON_OBJECT, name, 0);
 }
 
 json *json_new_array(const char *name)
 {
-    return new_type(JSON_ARRAY, name, 0);
+    return new_number(JSON_ARRAY, name, 0);
 }
 
 json *json_new_format(const char *name, const char *fmt, ...)
@@ -148,27 +148,27 @@ json *json_new_string(const char *name, const char *value)
 
 json *json_new_integer(const char *name, long long value)
 {
-    return new_type(JSON_INTEGER, name, (double)value);
+    return new_number(JSON_INTEGER, name, (double)value);
 }
 
 json *json_new_real(const char *name, unsigned long long value)
 {
-    return new_type(JSON_INTEGER, name, (double)value);
+    return new_number(JSON_INTEGER, name, (double)value);
 }
 
 json *json_new_double(const char *name, double value)
 {
-    return new_type(JSON_DOUBLE, name, value);
+    return new_number(JSON_DOUBLE, name, value);
 }
 
 json *json_new_boolean(const char *name, int value)
 {
-    return new_type(JSON_BOOLEAN, name, value ? 1 : 0);
+    return new_number(JSON_BOOLEAN, name, value ? 1 : 0);
 }
 
 json *json_new_null(const char *name)
 {
-    return new_type(JSON_NULL, name, 0);
+    return new_number(JSON_NULL, name, 0);
 }
 
 const char *json_set_name(json *node, const char *name)
@@ -195,17 +195,6 @@ const char *json_set_name(json *node, const char *name)
 
 /* set helpers */
 
-static json *set_type(json *node, enum json_type type, double value)
-{
-    if (node->type == JSON_STRING)
-    {
-        free(node->value.as_string);
-    }
-    node->type = type;
-    node->value.as_number = value;
-    return node;
-}
-
 static json *set_string(json *node, char *value)
 {
     if (value == NULL)
@@ -218,6 +207,17 @@ static json *set_string(json *node, char *value)
     }
     node->type = JSON_STRING;
     node->value.as_string = value;
+    return node;
+}
+
+static json *set_number(json *node, enum json_type type, double value)
+{
+    if (node->type == JSON_STRING)
+    {
+        free(node->value.as_string);
+    }
+    node->type = type;
+    node->value.as_number = value;
     return node;
 }
 
@@ -236,7 +236,7 @@ json *json_set_integer(json *node, long long value)
     {
         return NULL;
     }
-    return set_type(node, JSON_INTEGER, (double)value);
+    return set_number(node, JSON_INTEGER, (double)value);
 }
 
 json *json_set_real(json *node, unsigned long long value)
@@ -245,7 +245,7 @@ json *json_set_real(json *node, unsigned long long value)
     {
         return NULL;
     }
-    return set_type(node, JSON_INTEGER, (double)value);
+    return set_number(node, JSON_INTEGER, (double)value);
 }
 
 json *json_set_double(json *node, double value)
@@ -254,7 +254,7 @@ json *json_set_double(json *node, double value)
     {
         return NULL;
     }
-    return set_type(node, JSON_DOUBLE, value);
+    return set_number(node, JSON_DOUBLE, value);
 }
 
 json *json_set_boolean(json *node, int value)
@@ -263,7 +263,7 @@ json *json_set_boolean(json *node, int value)
     {
         return NULL;
     }
-    return set_type(node, JSON_BOOLEAN, value ? 1 : 0);
+    return set_number(node, JSON_BOOLEAN, value ? 1 : 0);
 }
 
 json *json_set_null(json *node)
@@ -272,7 +272,7 @@ json *json_set_null(json *node)
     {
         return NULL;
     }
-    return set_type(node, JSON_NULL, 0);
+    return set_number(node, JSON_NULL, 0);
 }
 
 /* push helper */

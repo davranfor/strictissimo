@@ -32,20 +32,6 @@ static int is_token(int c)
         || (c == '\0');
 }
 
-/* Check whether a string already tested as a valid number is a double */
-static int is_double(const char *left, const char *right)
-{
-    while (left <= right)
-    {
-        if ((*left == '.') || (*left == 'E') || (*left == 'e'))
-        {
-            return 1;
-        }
-        left++;
-    }
-    return 0;
-}
-
 static int is_escape(const char *str)
 {
     char c = *str;
@@ -244,7 +230,7 @@ static char *copy(const char *str, size_t length)
 static double to_number(const char *left, const char *right, int *error)
 {
     char *end;
-    double result = strtod(left, &end);
+    double number = strtod(left, &end);
 
     if (end <= right)
     {
@@ -269,7 +255,21 @@ static double to_number(const char *left, const char *right, int *error)
         return 0;
     }
     *error = 0;
-    return result;
+    return number;
+}
+
+/* Check whether a string already tested as a valid number is a double */
+static int is_double(const char *left, const char *right)
+{
+    while (left <= right)
+    {
+        if ((*left == '.') || (*left == 'E') || (*left == 'e'))
+        {
+            return 1;
+        }
+        left++;
+    }
+    return 0;
 }
 
 static char *set_name(json *node, const char *left, const char *right)

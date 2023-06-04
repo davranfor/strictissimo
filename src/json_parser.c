@@ -185,7 +185,7 @@ fail:
     return NULL;
 }
 
-/* Allocates space for a name or a scalar value escaping special characters */
+/* Allocates space for a name or a string value escaping special characters */
 static char *copy(const char *str, size_t length)
 {
     char *buf = malloc(length + 1);

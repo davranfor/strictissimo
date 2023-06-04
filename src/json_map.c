@@ -36,6 +36,18 @@ static const size_t primes[] =
     805306457, 1610612741, 3221225473, 4294967291
 };
 
+static unsigned long hash_str(const unsigned char * key)
+{
+    unsigned long hash = 5381;
+    unsigned char chr;
+
+    while ((chr = *key++))
+    {
+        hash = ((hash << 5) + hash) + chr;
+    }
+    return hash;
+}
+
 json_map *json_map_create(size_t size)
 {
     enum {NPRIMES = sizeof primes / sizeof *primes};
@@ -82,18 +94,6 @@ static struct node *create_node(const char *name, json *data)
         node->data = data;
     }
     return node;
-}
-
-static unsigned long hash_str(const unsigned char * key)
-{
-    unsigned long hash = 5381;
-    unsigned char chr;
-
-    while ((chr = *key++))
-    {
-        hash = ((hash << 5) + hash) + chr;
-    }
-    return hash;
 }
 
 static void reset(json_map *map)

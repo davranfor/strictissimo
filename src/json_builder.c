@@ -171,7 +171,7 @@ json *json_new_null(const char *name)
     return new_number(JSON_NULL, name, 0);
 }
 
-const char *json_set_name(json *node, const char *name)
+json *json_set_name(json *node, const char *name)
 {
     if (node == NULL)
     {
@@ -190,7 +190,7 @@ const char *json_set_name(json *node, const char *name)
     }
     free(node->name);
     node->name = str;
-    return str;
+    return node;
 }
 
 /* set helpers */
@@ -221,9 +221,26 @@ static json *set_number(json *node, enum json_type type, double value)
     return node;
 }
 
+json *json_set_format(json *node, const char *fmt, ...)
+{
+    if (!json_is_scalar(node) || (fmt == NULL))
+    {
+        return NULL;
+    }
+
+    va_list args;
+
+    va_start(args, fmt);
+
+    char *str = format_string(fmt, args);
+
+    va_end(args);
+    return set_string(node, str);
+}
+
 json *json_set_string(json *node, const char *value)
 {
-    if (!json_is_scalar(node))
+    if (!json_is_scalar(node) || (value == NULL))
     {
         return NULL;
     }

@@ -294,7 +294,7 @@ static int set_value(json *node, const char *left, const char *right)
     if ((*left == '"') && (*right == '"'))
     {
         node->type = JSON_STRING;
-        if (!(node->value.as_string = copy(left + 1, length - 2)))
+        if (!(node->value.string = copy(left + 1, length - 2)))
         {
             error = 1;
         }
@@ -302,17 +302,17 @@ static int set_value(json *node, const char *left, const char *right)
     else if ((length == 4) && (strncmp(left, "null", length) == 0))
     {
         node->type = JSON_NULL;
-        node->value.as_number = 0;
+        node->value.number = 0;
     }
     else if ((length == 4) && (strncmp(left, "true", length) == 0))
     {
         node->type = JSON_BOOLEAN;
-        node->value.as_number = 1;
+        node->value.number = 1;
     }
     else if ((length == 5) && (strncmp(left, "false", length) == 0))
     {
         node->type = JSON_BOOLEAN;
-        node->value.as_number = 0;
+        node->value.number = 0;
     }
     else
     {
@@ -321,7 +321,7 @@ static int set_value(json *node, const char *left, const char *right)
         if (!error)
         {
             node->type = is_double(left, right) ? JSON_DOUBLE : JSON_INTEGER;
-            node->value.as_number = value;
+            node->value.number = value;
         }
     }
     return !error;

@@ -174,7 +174,7 @@ const char *json_string(const json *node)
     {
         return "";
     }
-    return node->value.as_string;
+    return node->value.string;
 }
 
 long long json_integer(const json *node)
@@ -183,7 +183,7 @@ long long json_integer(const json *node)
     {
         return 0;
     }
-    return (long long)node->value.as_number;
+    return (long long)node->value.number;
 }
 
 unsigned long long json_real(const json *node)
@@ -192,7 +192,7 @@ unsigned long long json_real(const json *node)
     {
         return 0;
     }
-    return (unsigned long long)node->value.as_number;
+    return (unsigned long long)node->value.number;
 }
 
 double json_double(const json *node)
@@ -201,7 +201,7 @@ double json_double(const json *node)
     {
         return 0.0;
     }
-    return node->value.as_number;
+    return node->value.number;
 }
 
 double json_number(const json *node)
@@ -210,7 +210,7 @@ double json_number(const json *node)
     {
         return 0.0;
     }
-    return node->value.as_number;
+    return node->value.number;
 }
 
 int json_boolean(const json *node)
@@ -219,7 +219,7 @@ int json_boolean(const json *node)
     {
         return 0;
     }
-    return node->value.as_number != 0;
+    return node->value.number != 0;
 }
 
 int json_is_any(const json *node)
@@ -267,7 +267,7 @@ int json_is_real(const json *node)
 {
     return (node != NULL)
         && (node->type == JSON_INTEGER)
-        && (node->value.as_number >= 0);
+        && (node->value.number >= 0);
 }
 
 int json_is_double(const json *node)
@@ -293,14 +293,14 @@ int json_is_true(const json *node)
 {
     return (node != NULL)
         && (node->type == JSON_BOOLEAN)
-        && (node->value.as_number != 0);
+        && (node->value.number != 0);
 }
 
 int json_is_false(const json *node)
 {
     return (node != NULL)
         && (node->type == JSON_BOOLEAN)
-        && (node->value.as_number == 0);
+        && (node->value.number == 0);
 }
 
 int json_is_null(const json *node)
@@ -528,11 +528,11 @@ static int equal(const json *a, const json *b, int depth)
     }
     if (a->type == JSON_STRING)
     {
-        return strcmp(a->value.as_string, b->value.as_string) == 0;
+        return strcmp(a->value.string, b->value.string) == 0;
     }
     else
     {
-        return a->value.as_number == b->value.as_number;
+        return a->value.number == b->value.number;
     }
     return 1;
 }

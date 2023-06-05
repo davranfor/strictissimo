@@ -10,7 +10,7 @@
 #include "json_struct.h"
 #include "json_macros.h"
 
-static size_t str_size(const char *str)
+static size_t string_size(const char *str)
 {
     const char *ptr = str;
 
@@ -19,6 +19,18 @@ static size_t str_size(const char *str)
         str++;
     }
     return (size_t)(*str == '\0' ? str - ptr + 1 : 0);
+}
+
+static char *copy_string(const char *str)
+{
+    size_t size = string_size(str);
+    char *ptr = NULL;
+
+    if ((size > 0) && (ptr = malloc(size)))
+    {
+        memcpy(ptr, str, size);
+    }
+    return ptr;
 }
 
 static char *format_string(const char *fmt, va_list args)
@@ -33,7 +45,7 @@ static char *format_string(const char *fmt, va_list args)
     if (str != NULL)
     {
         vsprintf(str, fmt, copy);
-        if (str_size(str) == 0)
+        if (string_size(str) == 0)
         {
             free(str);
             str = NULL;
@@ -41,18 +53,6 @@ static char *format_string(const char *fmt, va_list args)
     }
     va_end(copy);
     return str;
-}
-
-static char *copy_string(const char *str)
-{
-    size_t size = str_size(str);
-    char *ptr = NULL;
-
-    if ((size > 0) && (ptr = malloc(size)))
-    {
-        memcpy(ptr, str, size);
-    }
-    return ptr;
 }
 
 static json *new_string(const char *key, char *value)
@@ -76,7 +76,7 @@ static json *new_string(const char *key, char *value)
     {
         node->type = JSON_STRING;
         node->name = name;
-        node->value.as_string = value;
+        node->value.string = value;
     }
     else
     {
@@ -101,7 +101,7 @@ static json *new_number(enum json_type type, const char *key, double value)
     {
         node->type = type;
         node->name = name;
-        node->value.as_number = value;
+        node->value.number = value;
     }
     else
     {
@@ -173,11 +173,7 @@ json *json_new_null(const char *name)
 
 json *json_set_name(json *node, const char *name)
 {
-    if (node == NULL)
-    {
-        return NULL;
-    }
-    if ((node->parent != NULL) && (!node->name & !name))
+    if ((node == NULL) || ((node->parent != NULL) && (!node->name & !name)))
     {
         return NULL;
     }
@@ -203,10 +199,10 @@ static json *set_string(json *node, char *value)
     }
     if (node->type == JSON_STRING)
     {
-        free(node->value.as_string);
+        free(node->value.string);
     }
     node->type = JSON_STRING;
-    node->value.as_string = value;
+    node->value.string = value;
     return node;
 }
 
@@ -214,10 +210,10 @@ static json *set_number(json *node, enum json_type type, double value)
 {
     if (node->type == JSON_STRING)
     {
-        free(node->value.as_string);
+        free(node->value.string);
     }
     node->type = type;
-    node->value.as_number = value;
+    node->value.number = value;
     return node;
 }
 
@@ -590,7 +586,7 @@ void json_free(json *node)
             free(node->name);
             if (node->type == JSON_STRING)
             {
-                free(node->value.as_string);
+                free(node->value.string);
             }
             free(node);
         }

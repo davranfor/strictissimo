@@ -11,8 +11,8 @@
 
 union json_value
 {
-    char *as_string;
-    double as_number;
+    char *string;
+    double number;
 };
 
 struct json

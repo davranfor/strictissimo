@@ -4,7 +4,6 @@
  *  \copyright GNU Public License.
  */
 
-#include <stdint.h>
 #include "json_macros.h"
 
 /** 

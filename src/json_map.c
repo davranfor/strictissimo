@@ -8,7 +8,7 @@
 #include <string.h>
 #include "json_map.h"
 
-#define hash_name(name) hash_str((const unsigned char *)name)
+#define hash_name(name) hash_str((const unsigned char *)(name))
 
 struct node
 {
@@ -276,7 +276,7 @@ size_t json_map_size(const json_map *map)
     return size;
 }
 
-void json_map_destroy(json_map *map, void (*func)(json *))
+void json_map_destroy(json_map *map, void (*function)(json *))
 {
     while (map != NULL)
     {
@@ -288,9 +288,9 @@ void json_map_destroy(json_map *map, void (*func)(json *))
             {
                 struct node *next = node->next;
 
-                if (func != NULL)
+                if (function != NULL)
                 {
-                    func(node->data);
+                    function(node->data);
                 }
                 free(node->name);
                 free(node);

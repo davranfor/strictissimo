@@ -5,8 +5,8 @@
  */
 
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
+#include <stdarg.h>
 #include "json_struct.h"
 #include "json_macros.h"
 

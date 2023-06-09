@@ -89,9 +89,12 @@ static json_buffer *buffer_write_double(json_buffer *buffer, double value)
         }
     }
     snprintf(buffer->text + buffer->length, length + 1, "%.17g", value);
+
+    /* Dot followed by trailing zeros are removed when %g is used */
+    size_t end = strcspn(buffer->text + buffer->length, ".eE");
+
     buffer->length += length;
-    /* Trailing zeros are removed when %g is used */
-    if ((long long)value == value)
+    if (end == length)
     {
         return buffer_write_sized(buffer, ".0", 2);
     }

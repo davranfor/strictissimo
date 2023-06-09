@@ -303,7 +303,7 @@ int test_is_ipv4(const char *str)
 }
 
 /**
- * ipv6 addresses can consist of:
+ * An ipv6 addresses can consist of:
  * - 2-6 ipv6 segments abbreviated with a double colon with or without ipv4
  * - 6 ipv6 segments separated by single colons and required ipv4
  * - 6-8 ipv6 segments abbreviated with a double colon without ipv4

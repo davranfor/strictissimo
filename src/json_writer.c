@@ -159,7 +159,7 @@ static int buffer_print(json_buffer *buffer, const json *node)
             CHECK(buffer_write_double(buffer, node->value.number));
             return 1;
         case JSON_BOOLEAN:
-            CHECK(buffer_write(buffer, node->value.number ? "true" : "false"));
+            CHECK(buffer_write(buffer, node->value.number != 0 ? "true" : "false"));
             return 1;
         case JSON_NULL:
             CHECK(buffer_write(buffer, "null"));

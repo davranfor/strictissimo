@@ -173,7 +173,7 @@ json *json_new_null(const char *name)
 
 json *json_set_name(json *node, const char *name)
 {
-    if ((node == NULL) || ((node->parent != NULL) && (!node->name & !name)))
+    if ((node == NULL) || ((node->parent != NULL) && (!node->name == !name)))
     {
         return NULL;
     }

@@ -3,7 +3,7 @@
  *  \author    David Ranieri <davranfor@gmail.com>
  *  \copyright GNU Public License.
  */
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "json_map.h"
@@ -150,32 +150,20 @@ json *json_map_insert(json_map *map, const char *name, json *data)
         struct node **list = map->list + hash % map->room;
         struct node *node = *list;
 
-        if (node == NULL)
-        {
-            *list = create_node(name, data);
-            if (*list == NULL)
-            {
-                return NULL;
-            }
-        }
-        else while (node != NULL)
+        while (node != NULL)
         {
             if (!strcmp(node->name, name))
             {
                 return node->data;
             }
-            if (node->next == NULL)
-            {
-                node->next = create_node(name, data);
-                if (node->next == NULL)
-                {
-                    return NULL;
-                }
-                break;
-            }
-            node = node->next;
+            list = &node->next;
+            node = *list;
         }
-
+        *list = create_node(name, data);
+        if (*list == NULL)
+        {
+            return NULL;
+        }
         // If more than 75% occupied then create a new table
         if (++map->size > map->room - map->room / 4)
         {
@@ -213,7 +201,6 @@ json *json_map_delete(json_map *map, const char *name)
                 {
                     *list = node->next;
                 }
-                free(node->name);
                 free(node);
                 if ((--map->size == 0) && (map->next != NULL))
                 {
@@ -298,4 +285,3 @@ void json_map_destroy(json_map *map, void (*function)(json *))
         map = next;
     }
 }
-

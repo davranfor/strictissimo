@@ -12,17 +12,17 @@
 
 struct node
 {
-    char *name;
-    json *data;
     struct node *next;
+    json *data;
+    char name[];
 };
 
 struct json_map
 {
     struct node **list;
+    json_map *next;
     size_t room;
     size_t size;
-    json_map *next;
 };
 
 static const size_t primes[] =
@@ -78,20 +78,13 @@ json_map *json_map_create(size_t size)
 
 static struct node *create_node(const char *name, json *data)
 {
-    struct node *node = calloc(1, sizeof(*node));
+    size_t size = strlen(name) + 1;
+    struct node *node = calloc(1, sizeof(*node) + size);
 
     if (node != NULL)
     {
-        size_t size = strlen(name) + 1;
-
-        node->name = malloc(size);
-        if (node->name == NULL)
-        {
-            free(node);
-            return NULL;
-        }
-        memcpy(node->name, name, size);
         node->data = data;
+        memcpy(node->name, name, size);
     }
     return node;
 }
@@ -292,7 +285,6 @@ void json_map_destroy(json_map *map, void (*function)(json *))
                 {
                     function(node->data);
                 }
-                free(node->name);
                 free(node);
                 node = next;
                 map->size--;

@@ -65,7 +65,7 @@ json_map *json_map_create(size_t size)
 
     if (map != NULL)
     {
-        map->list = calloc(size, sizeof(*map->list));
+        map->list = calloc(size, sizeof *map->list);
         if (map->list == NULL)
         {
             free(map);
@@ -79,10 +79,11 @@ json_map *json_map_create(size_t size)
 static struct node *create_node(const char *name, json *data)
 {
     size_t size = strlen(name) + 1;
-    struct node *node = calloc(1, sizeof(*node) + size);
+    struct node *node = malloc(sizeof *node + size);
 
     if (node != NULL)
     {
+        node->next = NULL;
         node->data = data;
         memcpy(node->name, name, size);
     }
@@ -148,16 +149,15 @@ json *json_map_insert(json_map *map, const char *name, json *data)
         map = rehash(map, hash);
 
         struct node **list = map->list + hash % map->room;
-        struct node *node = *list;
+        struct node *node;
 
-        while (node != NULL)
+        while ((node = *list))
         {
             if (!strcmp(node->name, name))
             {
                 return node->data;
             }
-            list = &node->next;
-            node = *list;
+            list = &(node->next);
         }
         *list = create_node(name, data);
         if (*list == NULL)

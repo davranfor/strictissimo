@@ -39,12 +39,12 @@ static char *format_string(const char *fmt, va_list args)
 
     va_copy(copy, args);
 
-    size_t length = (size_t)vsnprintf(NULL, 0, fmt, args);
-    char *str = malloc(length + 1);
+    size_t size = 1 + (size_t)vsnprintf(NULL, 0, fmt, args);
+    char *str = malloc(size);
 
     if (str != NULL)
     {
-        vsprintf(str, fmt, copy);
+        vsnprintf(str, size, fmt, copy);
         if (string_size(str) == 0)
         {
             free(str);

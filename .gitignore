@@ -3,4 +3,4 @@ examples
 test/main
 backup
 github
-strictissimo.xcworkspace
+strictissimo.xcodeproj

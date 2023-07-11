@@ -36,9 +36,8 @@ $(OBJDIR):
 -include $(OBJECTS:.o=.d)
 
 install:
-	mkdir -p $(DESTLIB)
+	mkdir -p $(DESTLIB) $(DESTINC)
 	mv $(TARGET) $(DESTLIB)
-	mkdir -p $(DESTINC)
 	cp $(INCDIR)/*.h $(DESTINC)
 
 uninstall:

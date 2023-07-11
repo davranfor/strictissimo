@@ -285,3 +285,4 @@ void json_map_destroy(json_map *map, void (*function)(json *))
         map = next;
     }
 }
+
